@@ -64,7 +64,7 @@ $users = $conn->query("SELECT id, name FROM smsCampaigner_users WHERE role = 'pa
 
 <body>
 
-    <!-- NAVBAR -->
+
     <nav class="navbar">
         <div class="navbar-brand">
             <span class="brand-dot"></span>
@@ -75,25 +75,22 @@ $users = $conn->query("SELECT id, name FROM smsCampaigner_users WHERE role = 'pa
         </div>
     </nav>
 
-    <!-- PAGE -->
     <div class="page-wrapper">
 
         <a href="train_schedule.php" class="back-link">← Back to Schedules</a>
 
-        <!-- Header -->
         <div class="page-header">
             <h1>Schedule Details</h1>
             <p>Viewing schedule #<?= $id ?></p>
         </div>
 
-        <!-- Alert -->
+
         <?php if ($message): ?>
             <div class="alert alert-<?= $msgType ?>">
                 <?= htmlspecialchars($message) ?>
             </div>
         <?php endif; ?>
 
-        <!-- SCHEDULE INFO PORTLET -->
         <div class="card">
             <div class="card-head">
                 <div class="card-head-title">Schedule Information</div>
@@ -126,7 +123,7 @@ $users = $conn->query("SELECT id, name FROM smsCampaigner_users WHERE role = 'pa
             </div>
         </div>
 
-        <!-- PASSENGER LIST -->
+
         <div class="card">
             <div class="card-head">
                 <div class="card-head-title">Passenger List</div>
@@ -168,7 +165,7 @@ $users = $conn->query("SELECT id, name FROM smsCampaigner_users WHERE role = 'pa
 
     </div>
 
-    <!-- ADD PASSENGER MODAL -->
+
     <div class="modal-overlay" id="passengerModal">
         <div class="modal-box">
             <div class="modal-title">Add Passenger</div>

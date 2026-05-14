@@ -108,7 +108,7 @@ $drivers = $conn->query("
             </div>
         <?php endif; ?>
 
-        <!-- ADD / EDIT FORM -->
+
         <div class="card">
             <div class="card-head">
                 <div class="card-head-title">
