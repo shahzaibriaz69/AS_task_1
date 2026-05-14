@@ -78,17 +78,21 @@ $drivers = $conn->query("SELECT id, name FROM smsCampaigner_users WHERE role = '
     <link
         href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
         rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
+        integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
     <title>Train Schedule</title>
 </head>
 
 <body>
     <div class="container">
         <div class="page-title">
-            <span>🚆</span> Train Schedule Management
+            <span><i class="fa-solid fa-train"></i>
+            </span> Train Schedule Management
         </div>
         <?php if ($message): ?>
             <div class="alert alert-<?= $msgType ?>">
-                <?= $msgType === 'success' ? '✅' : '❌' ?>
+                <?= $msgType === 'success' ? '<i class="fa-solid fa-check"></i>' : '<i class="fa-regular fa-circle-xmark"></i>' ?>
                 <?= htmlspecialchars($message) ?>
             </div>
         <?php endif; ?>
@@ -148,17 +152,20 @@ $drivers = $conn->query("SELECT id, name FROM smsCampaigner_users WHERE role = '
                     <div class="form-group sm" style="min-width:unset;">
                         <?php if ($editRow): ?>
                             <label>&nbsp;</label>
-                            <button type="submit" name="edit" class="btn btn-warning">💾 Update</button>
+                            <button type="submit" name="edit" class="btn btn-warning"><i class="fa-solid fa-train"></i>
+                                Update</button>
                         <?php else: ?>
                             <label>&nbsp;</label>
-                            <button type="submit" name="add" class="btn btn-primary">➕ Add</button>
+                            <button type="submit" name="add" class="btn btn-primary"><i class="fa-solid fa-plus"></i>
+                                Add</button>
                         <?php endif; ?>
                     </div>
 
                     <?php if ($editRow): ?>
                         <div class="form-group sm" style="min-width:unset;">
                             <label>&nbsp;</label>
-                            <a href="train_schedule.php" class="btn btn-secondary">✕ Cancel</a>
+                            <a href="train_schedule.php" class="btn btn-secondary"><i
+                                    class="fa-regular fa-circle-xmark"></i> Cancel</a>
                         </div>
                     <?php endif; ?>
 
@@ -170,7 +177,7 @@ $drivers = $conn->query("SELECT id, name FROM smsCampaigner_users WHERE role = '
 
         <div class="card">
             <div class="card-header">
-                <span><span class="header-icon">📋</span> All Train Schedules</span>
+                <span><span class="header-icon"><i class="fa-regular fa-file"></i></span> All Train Schedules</span>
             </div>
             <div class="table-wrapper">
                 <table>
@@ -217,13 +224,14 @@ $drivers = $conn->query("SELECT id, name FROM smsCampaigner_users WHERE role = '
                                 <td>
                                     <div class="actions-td">
                                         <a href="view_train_schedule.php?id=<?= $row['id'] ?>"
-                                            class="btn btn-sm btn-info">👁
+                                            class="btn btn-sm btn-info"><i class="fa-solid fa-eye"></i>
                                             View</a>
                                         <a href="train_schedule.php?edit=<?= $row['id'] ?>"
-                                            class="btn btn-sm btn-warning">✏️
+                                            class="btn btn-sm btn-warning"><i class="fa-solid fa-pen"></i>
                                             Edit</a>
                                         <a href="train_schedule.php?delete=<?= $row['id'] ?>" class="btn btn-sm btn-danger"
-                                            onclick="return confirm('Delete this schedule?')">🗑 Delete</a>
+                                            onclick="return confirm('Delete this schedule?')"><i
+                                                class="fa-solid fa-trash"></i> Delete</a>
                                     </div>
                                 </td>
                             </tr>
