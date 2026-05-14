@@ -415,15 +415,34 @@ tbody td {
     animation: slideDown 0.25s ease;
 }
 
-.alert-success { background: #f0faf5; color: #1f7a52; border-color: var(--success); }
-.alert-error   { background: #fff4f4; color: #b83232; border-color: var(--danger); }
-
-@keyframes slideDown {
-    from { opacity: 0; transform: translateY(-6px); }
-    to   { opacity: 1; transform: translateY(0); }
+.alert-success {
+    background: #f0faf5; 
+    color: #1f7a52; 
+    border-color: var(--success); 
+}
+.alert-error { 
+    background: #fff4f4; 
+    color: #b83232; 
+    border-color: var(--danger); 
 }
 
-.info-grid { display: flex; flex-wrap: wrap; }
+@keyframes slideDown {
+    from { 
+        opacity: 0; 
+        transform: 
+        translateY(-6px); 
+    }
+    to   
+    { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
+
+.info-grid { 
+    display: flex; 
+    flex-wrap: wrap; 
+}
 
 .info-item {
     flex: 1;
@@ -432,7 +451,9 @@ tbody td {
     border-right: 1px solid var(--border);
 }
 
-.info-item:last-child { border-right: none; }
+.info-item:last-child { 
+    border-right: none; 
+}
 
 .info-label {
     font-size: 10.5px;
@@ -461,7 +482,10 @@ tbody td {
     backdrop-filter: blur(2px);
 }
 
-.modal-overlay.active { display: flex; }
+.modal-overlay.active
+ { 
+    display: flex;
+ }
 
 .modal-box {
     background: var(--white);
@@ -509,14 +533,31 @@ tbody td {
     transition: var(--transition);
 }
 
-.back-link:hover { color: var(--accent); }
+.back-link:hover {
+     color: var(--accent); 
+    }
 
 
 @media (max-width: 768px) {
-    .form-row     { flex-direction: column; }
-    .form-group   { min-width: 100%; max-width: 100%; }
-    .info-item    { min-width: 100%; border-right: none; border-bottom: 1px solid var(--border); }
-    .info-item:last-child { border-bottom: none; }
-    .page-wrapper { padding: 16px; }
-    .navbar       { padding: 0 16px; }
+    .form-row{
+         flex-direction: column;
+     }
+    .form-group { 
+        min-width: 100%; 
+        max-width: 100%;
+     }
+    .info-item{ 
+        min-width: 100%; 
+        border-right: none; 
+        border-bottom: 1px solid var(--border); 
+    }
+    .info-item:last-child{ 
+        border-bottom: none; 
+    }
+    .page-wrapper { 
+        padding: 16px;
+    }
+    .navbar{ 
+        padding: 0 16px; 
+    }
 }
