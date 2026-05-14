@@ -239,7 +239,7 @@ $drivers = $conn->query("SELECT id, name FROM smsCampaigner_users WHERE role = '
             </div>
         </div>
     </div>
-
+    <script src="script.js"></script>
 </body>
 
 </html>

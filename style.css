@@ -275,3 +275,61 @@ tbody td {
     backdrop-filter: blur(3px);
     animation: fadeIn 0.2s ease;
 }
+
+.modal-overlay.active {
+    display: flex;
+}
+ 
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+ 
+.modal-box {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    width: 100%;
+    max-width: 420px;
+    padding: 28px;
+    margin: 20px;
+    animation: popUp 0.25s ease;
+}
+ 
+@keyframes popUp {
+    from { opacity: 0; transform: scale(0.95) translateY(10px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+ 
+.modal-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+ 
+.modal-footer {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 22px;
+}
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-light);
+    margin-bottom: 20px;
+    transition: var(--transition);
+}
+ 
+.back-link:hover {
+    color: var(--primary);
+    gap: 8px;
+}

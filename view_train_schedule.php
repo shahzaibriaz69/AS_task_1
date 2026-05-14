@@ -211,7 +211,7 @@ $users = $conn->query("SELECT id, name FROM smsCampaigner_users ORDER BY name AS
         </div>
 
     </div>
-
+    <script src="script.js"></script>
 </body>
 
 </html>
