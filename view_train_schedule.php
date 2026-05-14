@@ -131,6 +131,85 @@ $users = $conn->query("SELECT id, name FROM smsCampaigner_users ORDER BY name AS
             </div>
 
         </div>
+
+
+        <div class="card">
+            <div class="card-header">
+                <span><span class="header-icon">👥</span> Passenger List</span>
+                <button class="btn btn-sm btn-success" onclick="openModal()">➕ Add Passenger</button>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Address</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
+                        $i = 1;
+                        while ($p = $passengers->fetch_assoc()): ?>
+                            <tr>
+                                <td>
+                                    <?= $i++ ?>
+                                </td>
+                                <td>
+                                    <?= htmlspecialchars($p['name']) ?>
+                                </td>
+                                <td>
+                                    <?= htmlspecialchars($p['email']) ?>
+                                </td>
+                                <td>
+                                    <?= htmlspecialchars($p['phone']) ?>
+                                </td>
+                                <td>
+                                    <?= htmlspecialchars($p['address']) ?>
+                                </td>
+                            </tr>
+                        <?php endwhile; ?>
+
+                        <?php if ($passengers->num_rows === 0): ?>
+                            <tr>
+                                <td colspan="5" class="no-data">No passengers yet. Click "Add Passenger" to add one.</td>
+                            </tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+
+        <div class="modal-overlay" id="passengerModal">
+            <div class="modal-box">
+                <div class="modal-title">👤 Add Passenger</div>
+
+                <form method="POST">
+                    <div class="form-group">
+                        <label>Select Passenger</label>
+                        <select name="user_id" required>
+                            <option value="">-- Select User --</option>
+                            <?php while ($u = $users->fetch_assoc()): ?>
+                                <option value="<?= $u['id'] ?>">
+                                    <?= htmlspecialchars($u['name']) ?>
+                                </option>
+                            <?php endwhile; ?>
+                        </select>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                        <button type="submit" name="add_passenger" class="btn btn-primary">Add Passenger</button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+
     </div>
 
 </body>
