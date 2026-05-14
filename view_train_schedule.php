@@ -14,7 +14,7 @@ $msgType = "";
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_passenger'])) {
     $user_id = intval($_POST['user_id']);
 
-    // Duplicate check
+
     $check = $conn->query("SELECT id FROM smsCampaigner_train_passengers 
                            WHERE train_id=$id AND user_id=$user_id");
     if ($check->num_rows > 0) {
@@ -54,3 +54,85 @@ $passengers = $conn->query("
 
 $users = $conn->query("SELECT id, name FROM smsCampaigner_users ORDER BY name ASC");
 ?>
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+        rel="stylesheet">
+    <title>View Train Schedule</title>
+</head>
+
+<body>
+
+    <div class="container">
+        <a href="train_schedule.php" class="back-link">← Back to Schedules</a>
+
+        <div class="page-title">
+            <span>🚆</span> Train Schedule Details
+        </div>
+
+        <?php if ($message): ?>
+            <div class="alert alert-<?= $msgType ?>">
+                <?= $msgType === 'success' ? '✅' : '❌' ?>
+                <?= htmlspecialchars($message) ?>
+            </div>
+        <?php endif; ?>
+
+        <div class="card">
+            <div class="card-header">
+                <span><span class="header-icon">📋</span> Schedule Information</span>
+            </div>
+
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">📅 Date</div>
+                    <div class="info-value">
+                        <?= htmlspecialchars($schedule['date']) ?>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">🕐 Start Time</div>
+                    <div class="info-value">
+                        <?= htmlspecialchars($schedule['start_time']) ?>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">🕔 End Time</div>
+                    <div class="info-value">
+                        <?= htmlspecialchars($schedule['end_time']) ?>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">📍 From</div>
+                    <div class="info-value">
+                        <?= htmlspecialchars($schedule['starting_station']) ?>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">🏁 Destination</div>
+                    <div class="info-value">
+                        <?= htmlspecialchars($schedule['destination']) ?>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">👤 Driver</div>
+                    <div class="info-value">
+                        <?= htmlspecialchars($schedule['driver_name'] ?? 'N/A') ?>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+
+</html>
