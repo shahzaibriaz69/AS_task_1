@@ -26,6 +26,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add'])) {
         VALUES ('$date','$start_time','$end_time','$starting','$destination','$driver_id')");
     $message = "Schedule added successfully.";
     $msgType = "success";
+
+    header("Location: train_schedule.php");
+    exit();
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
