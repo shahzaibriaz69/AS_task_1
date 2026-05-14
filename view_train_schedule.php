@@ -51,8 +51,7 @@ $passengers = $conn->query("
     ORDER BY u.name ASC
 ");
 
-
-$users = $conn->query("SELECT id, name FROM smsCampaigner_users ORDER BY name ASC");
+$users = $conn->query("SELECT id, name FROM smsCampaigner_users WHERE role = 'passenger' ORDER BY name ASC");
 ?>
 
 <!DOCTYPE html>
@@ -79,7 +78,7 @@ $users = $conn->query("SELECT id, name FROM smsCampaigner_users ORDER BY name AS
         <a href="train_schedule.php" class="back-link">← Back to Schedules</a>
 
         <div class="page-title">
-            <span>🚆</span> Train Schedule Details
+            <span><i class="fa-solid fa-train"></i></span> Train Schedule Details
         </div>
 
         <?php if ($message): ?>

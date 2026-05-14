@@ -26,6 +26,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add'])) {
         VALUES ('$date','$start_time','$end_time','$starting','$destination','$driver_id')");
     $message = "Schedule added successfully.";
     $msgType = "success";
+
+    header("Location: train_schedule.php");
+    exit();
 }
 
 
@@ -177,7 +180,7 @@ $drivers = $conn->query("SELECT id, name FROM smsCampaigner_users WHERE role = '
 
         <div class="card">
             <div class="card-header">
-                <span><span class="header-icon"><i class="fa-regular fa-file"></i></span> All Train Schedules</span>
+                <span><span class="header-icon"></span> All Train Schedules</span>
             </div>
             <div class="table-wrapper">
                 <table>
