@@ -72,6 +72,7 @@ $drivers = $conn->query("SELECT id, name FROM smsCampaigner_users WHERE role = '
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
     <title>Train Schedule</title>
 </head>
 
@@ -86,6 +87,80 @@ $drivers = $conn->query("SELECT id, name FROM smsCampaigner_users WHERE role = '
                 <?= htmlspecialchars($message) ?>
             </div>
         <?php endif; ?>
+
+        <div class="card-body">
+            <form method="POST">
+
+                <?php if ($editRow): ?>
+                    <input type="hidden" name="id" value="<?= $editRow['id'] ?>">
+                <?php endif; ?>
+
+                <div class="form-row">
+
+                    <div class="form-group md">
+                        <label>Date</label>
+                        <input type="date" name="date" value="<?= $editRow['date'] ?? '' ?>" required>
+                    </div>
+
+                    <div class="form-group sm">
+                        <label>Start Time</label>
+                        <input type="time" name="start_time" value="<?= $editRow['start_time'] ?? '' ?>" required>
+                    </div>
+
+                    <div class="form-group sm">
+                        <label>End Time</label>
+                        <input type="time" name="end_time" value="<?= $editRow['end_time'] ?? '' ?>" required>
+                    </div>
+
+                    <div class="form-group lg">
+                        <label>Starting Station</label>
+                        <input type="text" name="starting_station"
+                            value="<?= htmlspecialchars($editRow['starting_station'] ?? '') ?>"
+                            placeholder="e.g. Lahore" required>
+                    </div>
+
+                    <div class="form-group lg">
+                        <label>Destination</label>
+                        <input type="text" name="destination"
+                            value="<?= htmlspecialchars($editRow['destination'] ?? '') ?>" placeholder="e.g. Karachi"
+                            required>
+                    </div>
+
+                    <div class="form-group lg">
+                        <label>Driver</label>
+                        <select name="driver_id" required>
+                            <option value="">-- Select Driver --</option>
+                            <?php
+                            $drivers->data_seek(0);
+                            while ($d = $drivers->fetch_assoc()): ?>
+                                <option value="<?= $d['id'] ?>" <?= (isset($editRow) && $editRow['driver_id'] == $d['id']) ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($d['name']) ?>
+                                </option>
+                            <?php endwhile; ?>
+                        </select>
+                    </div>
+
+                    <div class="form-group sm" style="min-width:unset;">
+                        <?php if ($editRow): ?>
+                            <label>&nbsp;</label>
+                            <button type="submit" name="edit" class="btn btn-warning">💾 Update</button>
+                        <?php else: ?>
+                            <label>&nbsp;</label>
+                            <button type="submit" name="add" class="btn btn-primary">➕ Add</button>
+                        <?php endif; ?>
+                    </div>
+
+                    <?php if ($editRow): ?>
+                        <div class="form-group sm" style="min-width:unset;">
+                            <label>&nbsp;</label>
+                            <a href="train_schedule.php" class="btn btn-secondary">✕ Cancel</a>
+                        </div>
+                    <?php endif; ?>
+
+                </div>
+            </form>
+        </div>
+
     </div>
 
 </body>
