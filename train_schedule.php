@@ -26,11 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add'])) {
         VALUES ('$date','$start_time','$end_time','$starting','$destination','$driver_id')");
     $message = "Schedule added successfully.";
     $msgType = "success";
-
-    header("Location: train_schedule.php");
-    exit();
 }
-
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
     $id = intval($_POST['id']);
@@ -52,137 +48,143 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
 
 $editRow = null;
 if (isset($_GET['edit'])) {
-    $id = intval($_GET['edit']);
-    $result = $conn->query("SELECT * FROM train_schedule WHERE id = $id");
-    $editRow = $result->fetch_assoc();
+    $eid = intval($_GET['edit']);
+    $res = $conn->query("SELECT * FROM train_schedule WHERE id = $eid");
+    $editRow = $res->fetch_assoc();
 }
 
 
 $schedules = $conn->query("
     SELECT ts.*, u.name AS driver_name 
     FROM train_schedule ts
-    LEFT JOIN smsCampaigner_users u ON ts.driver_id = u.id
-    ORDER BY ts.date DESC
+    LEFT JOIN smscampaigner_users u ON ts.driver_id = u.id
+    ORDER BY ts.date DESC, ts.start_time DESC
 ");
 
 
-$drivers = $conn->query("SELECT id, name FROM smsCampaigner_users WHERE role = 'employee' ORDER BY name ASC");
+$drivers = $conn->query("
+    SELECT id, name FROM smscampaigner_users 
+    WHERE role = 'employee' ORDER BY name ASC
+");
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Train Schedules</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
-        integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
-        crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <title>Train Schedule</title>
 </head>
 
 <body>
-    <div class="container">
-        <div class="page-title">
-            <span><i class="fa-solid fa-train"></i>
-            </span> Train Schedule Management
+
+
+    <nav class="navbar">
+        <div class="navbar-brand">
+            <span class="brand-dot"></span>
+            Train Management System
         </div>
+        <div class="navbar-links">
+            <a href="train_schedule.php" class="active">Schedules</a>
+        </div>
+    </nav>
+
+
+    <div class="page-wrapper">
+
+
+        <div class="page-header">
+            <h1>Train Schedules</h1>
+            <p>Manage all train schedules, routes and drivers</p>
+        </div>
+
         <?php if ($message): ?>
             <div class="alert alert-<?= $msgType ?>">
-                <?= $msgType === 'success' ? '<i class="fa-solid fa-check"></i>' : '<i class="fa-regular fa-circle-xmark"></i>' ?>
                 <?= htmlspecialchars($message) ?>
             </div>
         <?php endif; ?>
 
-        <div class="card-body">
-            <form method="POST">
-
+        <!-- ADD / EDIT FORM -->
+        <div class="card">
+            <div class="card-head">
+                <div class="card-head-title">
+                    <?= $editRow ? 'Edit Schedule' : 'Add New Schedule' ?>
+                </div>
                 <?php if ($editRow): ?>
-                    <input type="hidden" name="id" value="<?= $editRow['id'] ?>">
+                    <a href="train_schedule.php" class="btn btn-secondary btn-sm">Cancel</a>
                 <?php endif; ?>
-
-                <div class="form-row">
-
-                    <div class="form-group md">
-                        <label>Date</label>
-                        <input type="date" name="date" value="<?= $editRow['date'] ?? '' ?>" required>
-                    </div>
-
-                    <div class="form-group sm">
-                        <label>Start Time</label>
-                        <input type="time" name="start_time" value="<?= $editRow['start_time'] ?? '' ?>" required>
-                    </div>
-
-                    <div class="form-group sm">
-                        <label>End Time</label>
-                        <input type="time" name="end_time" value="<?= $editRow['end_time'] ?? '' ?>" required>
-                    </div>
-
-                    <div class="form-group lg">
-                        <label>Starting Station</label>
-                        <input type="text" name="starting_station"
-                            value="<?= htmlspecialchars($editRow['starting_station'] ?? '') ?>"
-                            placeholder="e.g. Lahore" required>
-                    </div>
-
-                    <div class="form-group lg">
-                        <label>Destination</label>
-                        <input type="text" name="destination"
-                            value="<?= htmlspecialchars($editRow['destination'] ?? '') ?>" placeholder="e.g. Karachi"
-                            required>
-                    </div>
-
-                    <div class="form-group lg">
-                        <label>Driver</label>
-                        <select name="driver_id" required>
-                            <option value="">-- Select Driver --</option>
-                            <?php
-                            $drivers->data_seek(0);
-                            while ($d = $drivers->fetch_assoc()): ?>
-                                <option value="<?= $d['id'] ?>" <?= (isset($editRow) && $editRow['driver_id'] == $d['id']) ? 'selected' : '' ?>>
-                                    <?= htmlspecialchars($d['name']) ?>
-                                </option>
-                            <?php endwhile; ?>
-                        </select>
-                    </div>
-
-                    <div class="form-group sm" style="min-width:unset;">
-                        <?php if ($editRow): ?>
-                            <label>&nbsp;</label>
-                            <button type="submit" name="edit" class="btn btn-warning"><i class="fa-solid fa-train"></i>
-                                Update</button>
-                        <?php else: ?>
-                            <label>&nbsp;</label>
-                            <button type="submit" name="add" class="btn btn-primary"><i class="fa-solid fa-plus"></i>
-                                Add</button>
-                        <?php endif; ?>
-                    </div>
-
+            </div>
+            <div class="card-body">
+                <form method="POST">
                     <?php if ($editRow): ?>
-                        <div class="form-group sm" style="min-width:unset;">
-                            <label>&nbsp;</label>
-                            <a href="train_schedule.php" class="btn btn-secondary"><i
-                                    class="fa-regular fa-circle-xmark"></i> Cancel</a>
-                        </div>
+                        <input type="hidden" name="id" value="<?= $editRow['id'] ?>">
                     <?php endif; ?>
 
-                </div>
-            </form>
+                    <div class="form-row">
+
+                        <div class="form-group md">
+                            <label>Date</label>
+                            <input type="date" name="date" value="<?= $editRow['date'] ?? '' ?>" required>
+                        </div>
+
+                        <div class="form-group sm">
+                            <label>Start Time</label>
+                            <input type="time" name="start_time" value="<?= $editRow['start_time'] ?? '' ?>" required>
+                        </div>
+
+                        <div class="form-group sm">
+                            <label>End Time</label>
+                            <input type="time" name="end_time" value="<?= $editRow['end_time'] ?? '' ?>" required>
+                        </div>
+
+                        <div class="form-group lg">
+                            <label>Starting Station</label>
+                            <input type="text" name="starting_station"
+                                value="<?= htmlspecialchars($editRow['starting_station'] ?? '') ?>"
+                                placeholder="e.g. Lahore" required>
+                        </div>
+
+                        <div class="form-group lg">
+                            <label>Destination</label>
+                            <input type="text" name="destination"
+                                value="<?= htmlspecialchars($editRow['destination'] ?? '') ?>"
+                                placeholder="e.g. Karachi" required>
+                        </div>
+
+                        <div class="form-group lg">
+                            <label>Driver</label>
+                            <select name="driver_id" required>
+                                <option value="">Select driver...</option>
+                                <?php
+                                $drivers->data_seek(0);
+                                while ($d = $drivers->fetch_assoc()): ?>
+                                    <option value="<?= $d['id'] ?>" <?= (isset($editRow) && $editRow['driver_id'] == $d['id']) ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars($d['name']) ?>
+                                    </option>
+                                <?php endwhile; ?>
+                            </select>
+                        </div>
+
+                        <div class="form-group btn-col">
+                            <label>&nbsp;</label>
+                            <?php if ($editRow): ?>
+                                <button type="submit" name="edit" class="btn btn-warning">Save Changes</button>
+                            <?php else: ?>
+                                <button type="submit" name="add" class="btn btn-primary">Add Schedule</button>
+                            <?php endif; ?>
+                        </div>
+
+                    </div>
+                </form>
+            </div>
         </div>
 
-
-
         <div class="card">
-            <div class="card-header">
-                <span><span class="header-icon"></span> All Train Schedules</span>
+            <div class="card-head">
+                <div class="card-head-title">All Schedules</div>
             </div>
-            <div class="table-wrapper">
+            <div class="table-wrap">
                 <table>
                     <thead>
                         <tr>
@@ -201,40 +203,25 @@ $drivers = $conn->query("SELECT id, name FROM smsCampaigner_users WHERE role = '
                         $i = 1;
                         while ($row = $schedules->fetch_assoc()): ?>
                             <tr>
+                                <td><?= $i++ ?></td>
+                                <td><?= htmlspecialchars($row['date']) ?></td>
+                                <td><?= htmlspecialchars($row['start_time']) ?></td>
+                                <td><?= htmlspecialchars($row['end_time']) ?></td>
+                                <td><?= htmlspecialchars($row['starting_station']) ?></td>
+                                <td><?= htmlspecialchars($row['destination']) ?></td>
                                 <td>
-                                    <?= $i++ ?>
-                                </td>
-                                <td>
-                                    <?= htmlspecialchars($row['date']) ?>
-                                </td>
-                                <td>
-                                    <?= htmlspecialchars($row['start_time']) ?>
-                                </td>
-                                <td>
-                                    <?= htmlspecialchars($row['end_time']) ?>
-                                </td>
-                                <td>
-                                    <?= htmlspecialchars($row['starting_station']) ?>
-                                </td>
-                                <td>
-                                    <?= htmlspecialchars($row['destination']) ?>
-                                </td>
-                                <td>
-                                    <span class="badge badge-primary">
+                                    <span class="badge">
                                         <?= htmlspecialchars($row['driver_name'] ?? 'N/A') ?>
                                     </span>
                                 </td>
                                 <td>
-                                    <div class="actions-td">
+                                    <div class="actions-cell">
                                         <a href="view_train_schedule.php?id=<?= $row['id'] ?>"
-                                            class="btn btn-sm btn-info"><i class="fa-solid fa-eye"></i>
-                                            View</a>
+                                            class="btn btn-sm btn-info">View</a>
                                         <a href="train_schedule.php?edit=<?= $row['id'] ?>"
-                                            class="btn btn-sm btn-warning"><i class="fa-solid fa-pen"></i>
-                                            Edit</a>
+                                            class="btn btn-sm btn-warning">Edit</a>
                                         <a href="train_schedule.php?delete=<?= $row['id'] ?>" class="btn btn-sm btn-danger"
-                                            onclick="return confirm('Delete this schedule?')"><i
-                                                class="fa-solid fa-trash"></i> Delete</a>
+                                            onclick="return confirm('Delete this schedule?')">Delete</a>
                                     </div>
                                 </td>
                             </tr>
@@ -242,15 +229,15 @@ $drivers = $conn->query("SELECT id, name FROM smsCampaigner_users WHERE role = '
 
                         <?php if ($schedules->num_rows === 0): ?>
                             <tr>
-                                <td colspan="8" class="no-data">No schedules found. Add one above!</td>
+                                <td colspan="8" class="no-data">No schedules found. Add one above.</td>
                             </tr>
                         <?php endif; ?>
                     </tbody>
                 </table>
             </div>
         </div>
+
     </div>
-    <script src="script.js"></script>
 </body>
 
 </html>
