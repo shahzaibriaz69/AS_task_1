@@ -65,3 +65,29 @@ $schedules = $conn->query("
 
 $drivers = $conn->query("SELECT id, name FROM smsCampaigner_users WHERE role = 'employee' ORDER BY name ASC");
 ?>
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Train Schedule</title>
+</head>
+
+<body>
+    <div class="container">
+        <div class="page-title">
+            <span>🚆</span> Train Schedule Management
+        </div>
+        <?php if ($message): ?>
+            <div class="alert alert-<?= $msgType ?>">
+                <?= $msgType === 'success' ? '✅' : '❌' ?>
+                <?= htmlspecialchars($message) ?>
+            </div>
+        <?php endif; ?>
+    </div>
+
+</body>
+
+</html>
