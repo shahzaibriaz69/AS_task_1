@@ -186,6 +186,53 @@ $drivers = $conn->query("SELECT id, name FROM smsCampaigner_users WHERE role = '
                         <th>Actions</th>
                     </tr>
                 </thead>
+                <tbody>
+                    <?php
+                    $i = 1;
+                    while ($row = $schedules->fetch_assoc()): ?>
+                        <tr>
+                            <td>
+                                <?= $i++ ?>
+                            </td>
+                            <td>
+                                <?= htmlspecialchars($row['date']) ?>
+                            </td>
+                            <td>
+                                <?= htmlspecialchars($row['start_time']) ?>
+                            </td>
+                            <td>
+                                <?= htmlspecialchars($row['end_time']) ?>
+                            </td>
+                            <td>
+                                <?= htmlspecialchars($row['starting_station']) ?>
+                            </td>
+                            <td>
+                                <?= htmlspecialchars($row['destination']) ?>
+                            </td>
+                            <td>
+                                <span class="badge badge-primary">
+                                    <?= htmlspecialchars($row['driver_name'] ?? 'N/A') ?>
+                                </span>
+                            </td>
+                            <td>
+                                <div class="actions-td">
+                                    <a href="view_train_schedule.php?id=<?= $row['id'] ?>" class="btn btn-sm btn-info">👁
+                                        View</a>
+                                    <a href="train_schedule.php?edit=<?= $row['id'] ?>" class="btn btn-sm btn-warning">✏️
+                                        Edit</a>
+                                    <a href="train_schedule.php?delete=<?= $row['id'] ?>" class="btn btn-sm btn-danger"
+                                        onclick="return confirm('Delete this schedule?')">🗑 Delete</a>
+                                </div>
+                            </td>
+                        </tr>
+                    <?php endwhile; ?>
+
+                    <?php if ($schedules->num_rows === 0): ?>
+                        <tr>
+                            <td colspan="8" class="no-data">No schedules found. Add one above!</td>
+                        </tr>
+                    <?php endif; ?>
+                </tbody>
             </table>
         </div>
     </div>
