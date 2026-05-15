@@ -50,7 +50,7 @@ $passengers = $conn->query("
 ");
 
 
-$users = $conn->query("SELECT id, name FROM smsCampaigner_users WHERE role = 'passenger' ORDER BY name ASC");
+$users = $conn->query("SELECT id, name FROM smscampaigner_users WHERE role = 'passenger' ORDER BY name ASC");
 ?>
 <!DOCTYPE html>
 <html lang="en">

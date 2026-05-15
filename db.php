@@ -1,8 +1,8 @@
 <?php
 $host = "localhost";
-$dbname = "anomozco_dev_shahzaib_riaz-JAR";
-$username = "anomozco_dev_shahzaib_riaz-JAR";
-$password = "passdb_shahzaib_riaz-JAR_8B6EJL45";
+$dbname = "as_task_1";
+$username = "root";
+$password = "";
 
 $conn = new mysqli($host, $username, $password, $dbname);
 
