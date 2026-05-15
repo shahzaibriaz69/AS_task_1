@@ -1,195 +1,130 @@
 <?php
-include 'db.php';
+require("./db.php");
 
-$id = intval($_GET['id'] ?? 0);
-if (!$id) {
-    header("Location: train_schedule.php");
-    exit;
+
+$id = $_GET['id'];
+
+$res = mysqli_query($conn, "SELECT * FROM smsCampaigner_train_schedule WHERE id='$id'");
+$train = mysqli_fetch_assoc($res);
+
+if (isset($_POST['add_passenger'])) {
+    $u_id = $_POST['user_id'];
+    mysqli_query($conn, "INSERT INTO smsCampaigner_train_passengers (train_id, user_id) VALUES ('$id', '$u_id')");
+    echo "<script>window.location.href='view_train_schedule.php?id=$id';</script>";
 }
-
-$message = "";
-$msgType = "";
-
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_passenger'])) {
-    $user_id = intval($_POST['user_id']);
-
-    $check = $conn->query("SELECT id FROM smscampaigner_train_passengers 
-                           WHERE train_id=$id AND user_id=$user_id");
-    if ($check->num_rows > 0) {
-        $message = "This passenger is already added to this schedule.";
-        $msgType = "error";
-    } else {
-        $conn->query("INSERT INTO smscampaigner_train_passengers (train_id, user_id) 
-                      VALUES ($id, $user_id)");
-        $message = "Passenger added successfully.";
-        $msgType = "success";
-    }
-}
-
-
-$result = $conn->query("
-    SELECT ts.*, u.name AS driver_name 
-    FROM train_schedule ts
-    LEFT JOIN smscampaigner_users u ON ts.driver_id = u.id
-    WHERE ts.id = $id
-");
-if ($result->num_rows === 0) {
-    header("Location: train_schedule.php");
-    exit;
-}
-$schedule = $result->fetch_assoc();
-
-
-$passengers = $conn->query("
-    SELECT u.name, u.email, u.phone, u.address
-    FROM smscampaigner_train_passengers tp
-    JOIN smscampaigner_users u ON tp.user_id = u.id
-    WHERE tp.train_id = $id
-    ORDER BY u.name ASC
-");
-
-
-$users = $conn->query("SELECT id, name FROM smscampaigner_users WHERE role = 'passenger' ORDER BY name ASC");
 ?>
-<!DOCTYPE html>
-<html lang="en">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>View Schedule</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-
-<body>
-
-
-    <nav class="navbar">
-        <div class="navbar-brand">
-            <span class="brand-dot"></span>
-            Train Management System
+<div class="kt-portlet kt-portlet--mobile">
+    <div class="kt-portlet__head kt-portlet__head--lg">
+        <div class="kt-portlet__head-label">
+            <span class="kt-portlet__head-icon">
+                <i class="kt-font-brand flaticon2-information"></i>
+            </span>
+            <h3 class="kt-portlet__head-title">
+                Train Schedule Details
+            </h3>
         </div>
-        <div class="navbar-links">
-            <a href="train_schedule.php">Schedules</a>
-        </div>
-    </nav>
-
-    <div class="page-wrapper">
-
-        <a href="train_schedule.php" class="back-link">← Back to Schedules</a>
-
-        <div class="page-header">
-            <h1>Schedule Details</h1>
-            <p>Viewing schedule #<?= $id ?></p>
-        </div>
-
-
-        <?php if ($message): ?>
-            <div class="alert alert-<?= $msgType ?>">
-                <?= htmlspecialchars($message) ?>
-            </div>
-        <?php endif; ?>
-
-        <div class="card">
-            <div class="card-head">
-                <div class="card-head-title">Schedule Information</div>
-            </div>
-            <div class="info-grid">
-                <div class="info-item">
-                    <div class="info-label">Date</div>
-                    <div class="info-value"><?= htmlspecialchars($schedule['date']) ?></div>
-                </div>
-                <div class="info-item">
-                    <div class="info-label">Start Time</div>
-                    <div class="info-value"><?= htmlspecialchars($schedule['start_time']) ?></div>
-                </div>
-                <div class="info-item">
-                    <div class="info-label">End Time</div>
-                    <div class="info-value"><?= htmlspecialchars($schedule['end_time']) ?></div>
-                </div>
-                <div class="info-item">
-                    <div class="info-label">From</div>
-                    <div class="info-value"><?= htmlspecialchars($schedule['starting_station']) ?></div>
-                </div>
-                <div class="info-item">
-                    <div class="info-label">Destination</div>
-                    <div class="info-value"><?= htmlspecialchars($schedule['destination']) ?></div>
-                </div>
-                <div class="info-item">
-                    <div class="info-label">Driver</div>
-                    <div class="info-value"><?= htmlspecialchars($schedule['driver_name'] ?? 'N/A') ?></div>
-                </div>
+        <div class="kt-portlet__head-toolbar">
+            <div class="kt-portlet__head-wrapper">
+                <button type="button" class="btn btn-brand btn-elevate btn-icon-sm" data-toggle="modal"
+                    data-target="#addPassengerModal">
+                    <i class="la la-plus"></i> Add Passenger
+                </button>
             </div>
         </div>
-
-
-        <div class="card">
-            <div class="card-head">
-                <div class="card-head-title">Passenger List</div>
-                <button class="btn btn-primary btn-sm" onclick="openModal()">Add Passenger</button>
+    </div>
+    <div class="kt-portlet__body">
+        <div class="row mb-4">
+            <div class="col-lg-6">
+                <table class="table table-bordered">
+                    <tr>
+                        <th>Starting Station</th>
+                        <td><?php echo $train['starting_station']; ?></td>
+                    </tr>
+                    <tr>
+                        <th>Destination</th>
+                        <td><?php echo $train['destination']; ?></td>
+                    </tr>
+                    <tr>
+                        <th>Date</th>
+                        <td><?php echo $train['date']; ?></td>
+                    </tr>
+                </table>
             </div>
-            <div class="table-wrap">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Phone</th>
-                            <th>Address</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php
-                        $i = 1;
-                        while ($p = $passengers->fetch_assoc()): ?>
-                            <tr>
-                                <td><?= $i++ ?></td>
-                                <td><?= htmlspecialchars($p['name']) ?></td>
-                                <td><?= htmlspecialchars($p['email']) ?></td>
-                                <td><?= htmlspecialchars($p['phone']) ?></td>
-                                <td><?= htmlspecialchars($p['address']) ?></td>
-                            </tr>
-                        <?php endwhile; ?>
-
-                        <?php if ($passengers->num_rows === 0): ?>
-                            <tr>
-                                <td colspan="5" class="no-data">No passengers added yet.</td>
-                            </tr>
-                        <?php endif; ?>
-                    </tbody>
+            <div class="col-lg-6">
+                <table class="table table-bordered">
+                    <tr>
+                        <th>Departure Time</th>
+                        <td><?php echo $train['start_time']; ?></td>
+                    </tr>
+                    <tr>
+                        <th>Arrival Time</th>
+                        <td><?php echo $train['end_time']; ?></td>
+                    </tr>
+                    <tr>
+                        <th>Driver ID</th>
+                        <td><?php echo $train['driver_id']; ?></td>
+                    </tr>
                 </table>
             </div>
         </div>
 
-    </div>
+        <hr>
 
-
-    <div class="modal-overlay" id="passengerModal">
-        <div class="modal-box">
-            <div class="modal-title">Add Passenger</div>
-            <form method="POST">
-                <div class="form-group">
-                    <label>Select User</label>
-                    <select name="user_id" required>
-                        <option value="">Select a user...</option>
-                        <?php while ($u = $users->fetch_assoc()): ?>
-                            <option value="<?= $u['id'] ?>">
-                                <?= htmlspecialchars($u['name']) ?>
-                            </option>
-                        <?php endwhile; ?>
-                    </select>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-                    <button type="submit" name="add_passenger" class="btn btn-primary">Add Passenger</button>
-                </div>
-            </form>
+        <h3>Passengers List</h3>
+        <div class="table-responsive">
+            <table class="table table-striped- table-bordered table-hover">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Address</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                    $plist = mysqli_query($conn, "SELECT u.* FROM smsCampaigner_users u JOIN smsCampaigner_train_passengers p ON u.id = p.user_id WHERE p.train_id = '$id'");
+                    while ($p = mysqli_fetch_assoc($plist)) {
+                        echo "<tr>
+                            <td>{$p['name']}</td>
+                            <td>{$p['email']}</td>
+                            <td>{$p['phone']}</td>
+                            <td>{$p['address']}</td>
+                        </tr>";
+                    }
+                    ?>
+                </tbody>
+            </table>
         </div>
     </div>
-    <script src="script.js"></script>
+</div>
 
-</body>
-
-</html>
+<div class="modal fade" id="addPassengerModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <form method="POST" class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Passenger to Schedule</h5>
+                <button type="button" class="close" data-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Select User</label>
+                    <select name="user_id" class="form-control" required>
+                        <option value="">-- Choose User --</option>
+                        <?php
+                        $users = mysqli_query($conn, "SELECT id, name FROM smsCampaigner_users");
+                        while ($u = mysqli_fetch_assoc($users)) {
+                            echo "<option value='{$u['id']}'>{$u['name']}</option>";
+                        }
+                        ?>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="submit" name="add_passenger" class="btn btn-primary">Save Passenger</button>
+            </div>
+        </form>
+    </div>
+</div>

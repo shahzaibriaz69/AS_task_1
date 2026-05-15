@@ -1,246 +1,238 @@
-<?php
-include 'db.php';
+<?php require("./db.php");
 
-$message = "";
-$msgType = "";
+if (isset($_POST['create_package'])) {
+    $actionId = escape($_POST['actionId']);
 
+    $date = escape($_POST['date']);
+    $start_time = escape($_POST['start_time']);
+    $end_time = escape($_POST['end_time']);
+    $starting_station = escape($_POST['starting_station']);
+    $destination = escape($_POST['destination']);
+    $driver_id = escape($_POST['driver_id']);
 
-if (isset($_GET['delete'])) {
-    $id = intval($_GET['delete']);
-    $conn->query("DELETE FROM train_schedule WHERE id = $id");
-    $message = "Schedule deleted successfully.";
-    $msgType = "success";
-}
+    if ($actionId == "") {
+        $id = generateRandomString();
+        $actionId = $id;
+        $query = "insert into smsCampaigner_train_schedule set id='$id' , date='$date', start_time='$start_time', end_time='$end_time', starting_station='$starting_station', destination='$destination', driver_id='$driver_id', timeAdded='$timeAdded', userId='$session_userId' ";
+    } else {
+        $query = "update smsCampaigner_train_schedule set id='$actionId' , date='$date', start_time='$start_time', end_time='$end_time', starting_station='$starting_station', destination='$destination', driver_id='$driver_id' where id='$actionId'";
+    }
+    runQuery($query);
 
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add'])) {
-    $date = $conn->real_escape_string($_POST['date']);
-    $start_time = $conn->real_escape_string($_POST['start_time']);
-    $end_time = $conn->real_escape_string($_POST['end_time']);
-    $starting = $conn->real_escape_string($_POST['starting_station']);
-    $destination = $conn->real_escape_string($_POST['destination']);
-    $driver_id = intval($_POST['driver_id']);
-
-    $conn->query("INSERT INTO train_schedule 
-        (date, start_time, end_time, starting_station, destination, driver_id) 
-        VALUES ('$date','$start_time','$end_time','$starting','$destination','$driver_id')");
-    $message = "Schedule added successfully.";
-    $msgType = "success";
-
-    header("Location: train_schedule.php");
+    header("Location: ?" . generateUrlParams_return(["m" => "Data was saved successfully!", "type" => "success"]));
     exit();
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
-    $id = intval($_POST['id']);
-    $date = $conn->real_escape_string($_POST['date']);
-    $start_time = $conn->real_escape_string($_POST['start_time']);
-    $end_time = $conn->real_escape_string($_POST['end_time']);
-    $starting = $conn->real_escape_string($_POST['starting_station']);
-    $destination = $conn->real_escape_string($_POST['destination']);
-    $driver_id = intval($_POST['driver_id']);
-
-    $conn->query("UPDATE train_schedule SET
-        date='$date', start_time='$start_time', end_time='$end_time',
-        starting_station='$starting', destination='$destination', driver_id='$driver_id'
-        WHERE id=$id");
-    $message = "Schedule updated successfully.";
-    $msgType = "success";
+if (isset($_GET['delete-record'])) {
+    $id = escape($_GET['delete-record']);
+    $query = "delete from smsCampaigner_train_schedule where id='$id'";
+    runQuery($query);
 }
 
 
-$editRow = null;
-if (isset($_GET['edit'])) {
-    $eid = intval($_GET['edit']);
-    $res = $conn->query("SELECT * FROM train_schedule WHERE id = $eid");
-    $editRow = $res->fetch_assoc();
-}
-
-
-$schedules = $conn->query("
-    SELECT ts.*, u.name AS driver_name 
-    FROM train_schedule ts
-    LEFT JOIN smscampaigner_users u ON ts.driver_id = u.id
-    ORDER BY ts.date DESC, ts.start_time DESC
-");
-
-
-$drivers = $conn->query("
-    SELECT id, name FROM smscampaigner_users 
-    WHERE role = 'employee' ORDER BY name ASC
-");
 ?>
 <!DOCTYPE html>
+
+
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Train Schedules</title>
-    <link rel="stylesheet" href="style.css">
+    <? require("./includes/views/head.php") ?>
 </head>
 
-<body>
+
+<body class="<? echo $g_body_class ?>">
+    <? require("./includes/views/header.php") ?>
+
+    <div class="kt-grid kt-grid--hor kt-grid--root">
+        <div class="kt-grid__item kt-grid__item--fluid kt-grid kt-grid--ver kt-page">
+            <div class="kt-grid__item kt-grid__item--fluid kt-grid kt-grid--hor kt-wrapper" id="kt_wrapper">
+
+                <? require("./includes/views/topmenu.php") ?>
+                <? require("./includes/views/leftmenu.php") ?>
 
 
-    <nav class="navbar">
-        <div class="navbar-brand">
-            <span class="brand-dot"></span>
-            Train Management System
-        </div>
-        <div class="navbar-links">
-            <a href="train_schedule.php" class="active">Schedules</a>
-        </div>
-    </nav>
+                <div class="kt-body kt-grid__item kt-grid__item--fluid kt-grid kt-grid--hor kt-grid--stretch"
+                    id="kt_body">
+                    <div class="kt-content  kt-grid__item kt-grid__item--fluid kt-grid kt-grid--hor" id="kt_content">
 
 
-    <div class="page-wrapper">
+                        <div class="kt-container  kt-grid__item kt-grid__item--fluid">
 
+                            <? if (isset($_GET['m'])) { ?>
+                                <div class="alert alert-info"><? echo $_GET['m'] ?></div><? } ?>
 
-        <div class="page-header">
-            <h1>Train Schedules</h1>
-            <p>Manage all train schedules, routes and drivers</p>
-        </div>
-
-        <?php if ($message): ?>
-            <div class="alert alert-<?= $msgType ?>">
-                <?= htmlspecialchars($message) ?>
-            </div>
-        <?php endif; ?>
-
-
-        <div class="card">
-            <div class="card-head">
-                <div class="card-head-title">
-                    <?= $editRow ? 'Edit Schedule' : 'Add New Schedule' ?>
+                            <div class="kt-portlet kt-portlet--mobile">
+                                <div class="kt-portlet__head kt-portlet__head--lg">
+                                    <div class="kt-portlet__head-label">
+                                        <h3 class="kt-portlet__head-title">Train schedule</h3>
+                                    </div>
+                                    <div class="kt-portlet__head-toolbar">
+                                        <div class="kt-portlet__head-wrapper">
+                                            <div class="kt-portlet__head-actions">
+                                                <a href="#" class="btn btn-primary" data-toggle="modal"
+                                                    data-target="#create_record_modal">
+                                                    <i class="fa fa-plus"></i>New Record
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="kt-portlet__body">
+                                    <form action="" method="post">
+                                        <table
+                                            class="table table-striped- table-bordered table-hover table-checkable add-search">
+                                            <thead>
+                                                <tr>
+                                                    <th>Date</th>
+                                                    <th>Start time</th>
+                                                    <th>End time</th>
+                                                    <th>Starting station</th>
+                                                    <th>Destination</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <?php $query = "select * from smsCampaigner_train_schedule t order by t.timeAdded desc";
+                                                $results = getAll($con, $query);
+                                                foreach ($results as $row) { ?>
+                                                    <tr>
+                                                        <td><?php echo $row['date'] ?></td>
+                                                        <td><?php echo $row['start_time'] ?></td>
+                                                        <td><?php echo $row['end_time'] ?></td>
+                                                        <td><?php echo $row['starting_station'] ?></td>
+                                                        <td><?php echo $row['destination'] ?></td>
+                                                        <td>
+                                                            <div class="btn-group">
+                                                                <a href="#" class="btn btn-warning" data-toggle="modal"
+                                                                    data-target="#create_record_modal"
+                                                                    data-mydata='<?php echo htmlspecialchars(json_encode($row, JSON_UNESCAPED_UNICODE)); ?>'>Edit</a>
+                                                                <a href="#" class="btn btn-danger" data-toggle="modal"
+                                                                    data-target="#delete_record"
+                                                                    data-url="?<? echo generateUrlParams() ?>delete-record=<?php echo $row['id'] ?>">Delete</a>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                <?php } ?>
+                                            </tbody>
+                                        </table>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <?php if ($editRow): ?>
-                    <a href="train_schedule.php" class="btn btn-secondary btn-sm">Cancel</a>
-                <?php endif; ?>
+                <? require("./includes/views/footer.php") ?>
             </div>
-            <div class="card-body">
-                <form method="POST">
-                    <?php if ($editRow): ?>
-                        <input type="hidden" name="id" value="<?= $editRow['id'] ?>">
-                    <?php endif; ?>
+        </div>
+    </div>
+    <? require("./includes/views/footerjs.php") ?>
+</body>
 
-                    <div class="form-row">
+<!-- end::Body -->
 
-                        <div class="form-group md">
+<div class="modal fade" id="create_record_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modelTitle">Insert</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                </button>
+            </div>
+            <div class="modal-body">
+
+                <form class="kt-form" action="?<? echo generateUrlParams() ?>" method="Post"
+                    enctype="multipart/form-data">
+                    <div class="kt-portlet__body">
+                        <!-- MODAL FIELD CODE-->
+
+                        <div class="form-group">
                             <label>Date</label>
-                            <input type="date" name="date" value="<?= $editRow['date'] ?? '' ?>" required>
+                            <input type="date" name="date" class="form-control" required>
                         </div>
 
-                        <div class="form-group sm">
-                            <label>Start Time</label>
-                            <input type="time" name="start_time" value="<?= $editRow['start_time'] ?? '' ?>" required>
+                        <div class="form-group">
+                            <label>Start time</label>
+                            <input type="time" name="start_time" class="form-control" required>
                         </div>
 
-                        <div class="form-group sm">
-                            <label>End Time</label>
-                            <input type="time" name="end_time" value="<?= $editRow['end_time'] ?? '' ?>" required>
+                        <div class="form-group">
+                            <label>End time</label>
+                            <input type="time" name="end_time" class="form-control" required>
                         </div>
 
-                        <div class="form-group lg">
-                            <label>Starting Station</label>
-                            <input type="text" name="starting_station"
-                                value="<?= htmlspecialchars($editRow['starting_station'] ?? '') ?>"
-                                placeholder="e.g. Lahore" required>
+                        <div class="form-group">
+                            <label>Starting station</label>
+                            <input type="text" name="starting_station" class="form-control" required>
                         </div>
 
-                        <div class="form-group lg">
+                        <div class="form-group">
                             <label>Destination</label>
-                            <input type="text" name="destination"
-                                value="<?= htmlspecialchars($editRow['destination'] ?? '') ?>"
-                                placeholder="e.g. Karachi" required>
+                            <input type="text" name="destination" class="form-control" required>
                         </div>
 
-                        <div class="form-group lg">
-                            <label>Driver</label>
-                            <select name="driver_id" required>
-                                <option value="">Select driver...</option>
+                        <div class="form-group">
+                            <label>Select Driver</label>
+                            <select name="driver_id" class="form-control" required>
+                                <option value="">-- Choose Driver --</option>
                                 <?php
-                                $drivers->data_seek(0);
-                                while ($d = $drivers->fetch_assoc()): ?>
-                                    <option value="<?= $d['id'] ?>" <?= (isset($editRow) && $editRow['driver_id'] == $d['id']) ? 'selected' : '' ?>>
-                                        <?= htmlspecialchars($d['name']) ?>
-                                    </option>
-                                <?php endwhile; ?>
+
+                                $res = mysqli_query($conn, "SELECT id, name FROM smsCampaigner_users WHERE role='employee'");
+
+                                while ($row = mysqli_fetch_array($res)) {
+
+                                    $selected = ($row['id'] == $driver_id) ? "selected" : "";
+                                    echo '<option value="' . $row['id'] . '" ' . $selected . '>' . $row['name'] . '</option>';
+                                }
+                                ?>
                             </select>
                         </div>
 
-                        <div class="form-group btn-col">
-                            <label>&nbsp;</label>
-                            <?php if ($editRow): ?>
-                                <button type="submit" name="edit" class="btn btn-warning">Save Changes</button>
-                            <?php else: ?>
-                                <button type="submit" name="add" class="btn btn-primary">Add Schedule</button>
-                            <?php endif; ?>
-                        </div>
+                        <input type="text" name="actionId" value="" hidden>
 
+                    </div>
+                    <div class="kt-portlet__foot">
+                        <div class="kt-form__actions">
+                            <input type="submit" name="create_record_package" value="Submit" class="btn btn-primary">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        </div>
                     </div>
                 </form>
             </div>
         </div>
-
-        <div class="card">
-            <div class="card-head">
-                <div class="card-head-title">All Schedules</div>
-            </div>
-            <div class="table-wrap">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Date</th>
-                            <th>Start</th>
-                            <th>End</th>
-                            <th>From</th>
-                            <th>To</th>
-                            <th>Driver</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php
-                        $i = 1;
-                        while ($row = $schedules->fetch_assoc()): ?>
-                            <tr>
-                                <td><?= $i++ ?></td>
-                                <td><?= htmlspecialchars($row['date']) ?></td>
-                                <td><?= htmlspecialchars($row['start_time']) ?></td>
-                                <td><?= htmlspecialchars($row['end_time']) ?></td>
-                                <td><?= htmlspecialchars($row['starting_station']) ?></td>
-                                <td><?= htmlspecialchars($row['destination']) ?></td>
-                                <td>
-                                    <span class="badge">
-                                        <?= htmlspecialchars($row['driver_name'] ?? 'N/A') ?>
-                                    </span>
-                                </td>
-                                <td>
-                                    <div class="actions-cell">
-                                        <a href="view_train_schedule.php?id=<?= $row['id'] ?>"
-                                            class="btn btn-sm btn-info">View</a>
-                                        <a href="train_schedule.php?edit=<?= $row['id'] ?>"
-                                            class="btn btn-sm btn-warning">Edit</a>
-                                        <a href="train_schedule.php?delete=<?= $row['id'] ?>" class="btn btn-sm btn-danger"
-                                            onclick="return confirm('Delete this schedule?')">Delete</a>
-                                    </div>
-                                </td>
-                            </tr>
-                        <?php endwhile; ?>
-
-                        <?php if ($schedules->num_rows === 0): ?>
-                            <tr>
-                                <td colspan="8" class="no-data">No schedules found. Add one above.</td>
-                            </tr>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
     </div>
-</body>
+</div>
+
+
+<!-- MODAL EDIT SCRIPT CODE-->
+<script>    $(document).ready(function () {
+
+        $("#create_record_modal").on('show.bs.modal', function (e) {
+            var mydata = $(e.relatedTarget).data('mydata');
+            console.log("mydata->", mydata);
+            $("input[type='checkbox']").prop('checked', false);
+            if (mydata != null) {
+                $("#modelTitle").html("Update");
+                $("input[name='date']").val(mydata['date'])
+                $("input[name='start_time']").val(mydata['start_time'])
+                $("input[name='end_time']").val(mydata['end_time'])
+                $("input[name='starting_station']").val(mydata['starting_station'])
+                $("input[name='destination']").val(mydata['destination'])
+
+                $("input[name='actionId']").val(mydata['id'])
+            } else {
+                $("#modelTitle").html("Insert");
+                $("input[name='date']").val("")
+                $("input[name='start_time']").val("")
+                $("input[name='end_time']").val("")
+                $("input[name='starting_station']").val("")
+                $("input[name='destination']").val("")
+
+                $("input[name='actionId']").val("")
+            }
+        });
+    })
+</script>
 
 </html>
